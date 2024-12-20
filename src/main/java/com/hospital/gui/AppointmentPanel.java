@@ -4,11 +4,12 @@ import com.hospital.auth.SessionManager;
 import com.hospital.auth.UserAccount;
 import com.hospital.data.DoctorData;
 import com.hospital.model.AppointmentManager;
+import com.hospital.model.TimeSlot;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -18,17 +19,11 @@ public class AppointmentPanel extends JPanel {
     private final JTextField contactNumberField;
     private final JComboBox<String> doctorDropdown;
     private final JTextField dateField;
-    private final JComboBox<String> timeDropdown;
+    private final JComboBox<TimeSlot> timeDropdown;
     private final JTextArea purposeField;
     private final CardLayout cardLayout;
     private final JPanel contentPanel;
     private MyAppointmentsPanel myAppointmentsPanel;
-
-    private static final String[] TIME_SLOTS = {
-        "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-        "11:00 AM", "11:30 AM", "12:00 PM", "02:00 PM",
-        "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM"
-    };
 
     public AppointmentPanel() {
         setLayout(new BorderLayout());
@@ -49,8 +44,8 @@ public class AppointmentPanel extends JPanel {
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBackground(new Color(240, 242, 245));
-        JButton viewAppointmentsButton = new JButton("View My Appointments");
-        viewAppointmentsButton.addActionListener(e -> cardLayout.show(contentPanel, "myAppointments"));
+        JButton viewAppointmentsButton = createStyledButton("View My Appointments", new Color(37, 99, 235));
+        viewAppointmentsButton.addActionListener(e -> cardLayout.show(contentPanel, "MyAppointments"));
         buttonPanel.add(viewAppointmentsButton);
         
         titlePanel.add(titleLabel, BorderLayout.WEST);
@@ -88,25 +83,28 @@ public class AppointmentPanel extends JPanel {
         dateField = createStyledTextField(10);
         addFormField(formPanel, gbc, "Appointment Date (dd-MM-yyyy)", dateField);
 
-        timeDropdown = createStyledComboBox(TIME_SLOTS);
+        timeDropdown = new JComboBox<>(TimeSlot.getDefaultTimeSlots());
+        timeDropdown.setPreferredSize(new Dimension(300, 35));
+        timeDropdown.setBackground(Color.WHITE);
+        timeDropdown.setFont(new Font("SansSerif", Font.PLAIN, 14));
         addFormField(formPanel, gbc, "Select Time Slot", timeDropdown);
 
         purposeField = createStyledTextArea(3, 20);
         addFormField(formPanel, gbc, "Purpose of Visit", new JScrollPane(purposeField));
 
         // Button Panel
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         actionPanel.setBackground(Color.WHITE);
         
-        JButton bookButton = createStyledButton("Book Appointment");
-        JButton clearButton = createStyledButton("Clear");
+        JButton clearButton = createStyledButton("Clear", new Color(107, 114, 128));
+        JButton bookButton = createStyledButton("Book Appointment", new Color(37, 99, 235));
 
         actionPanel.add(clearButton);
         actionPanel.add(bookButton);
 
         // Add action listeners
-        bookButton.addActionListener(e -> handleBookAppointment());
         clearButton.addActionListener(e -> handleClearForm());
+        bookButton.addActionListener(e -> handleBookAppointment());
 
         // Add components to booking panel
         bookingPanel.add(titlePanel, BorderLayout.NORTH);
@@ -118,7 +116,7 @@ public class AppointmentPanel extends JPanel {
 
         // Add panels to card layout
         contentPanel.add(bookingPanel, "booking");
-        contentPanel.add(myAppointmentsPanel, "myAppointments");
+        contentPanel.add(myAppointmentsPanel, "MyAppointments");
 
         // Add content panel to main panel
         add(contentPanel, BorderLayout.CENTER);
@@ -133,7 +131,6 @@ public class AppointmentPanel extends JPanel {
             String contactNumber = contactNumberField.getText().trim();
             String selectedDoctor = (String) doctorDropdown.getSelectedItem();
             String dateText = dateField.getText().trim();
-            String timeText = (String) timeDropdown.getSelectedItem();
 
             // Validation
             if (patientName.isEmpty() || contactNumber.isEmpty() || dateText.isEmpty()) {
@@ -141,36 +138,55 @@ public class AppointmentPanel extends JPanel {
                 return;
             }
 
-            // Parse date and time
+            // Parse date
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             LocalDate date = LocalDate.parse(dateText, dateFormatter);
-            LocalTime time = LocalTime.parse(timeText.replace(" AM", "").replace(" PM", ""), 
-                                          DateTimeFormatter.ofPattern("hh:mm"));
-            if (timeText.contains("PM") && time.getHour() != 12) {
-                time = time.plusHours(12);
+
+            // Get time directly from TimeSlot object
+            TimeSlot selectedTimeSlot = (TimeSlot) timeDropdown.getSelectedItem();
+            if (selectedTimeSlot == null) {
+                showError("Please select a time slot");
+                return;
             }
-            LocalDateTime dateTime = LocalDateTime.of(date, time);
+
+            // Combine date and time
+            LocalDateTime dateTime = LocalDateTime.of(date, selectedTimeSlot.getTime());
+
+            // Check if date is in the past
+            if (dateTime.isBefore(LocalDateTime.now())) {
+                showError("Cannot book appointments in the past");
+                return;
+            }
 
             // Get doctor ID
             String doctorId = getDoctorId(selectedDoctor);
+            if (doctorId == null) {
+                showError("Invalid doctor selection");
+                return;
+            }
+
             String username = SessionManager.getInstance().getCurrentUser().getUsername();
 
             // Create appointment
             AppointmentManager.getInstance().createAppointment(
-                doctorId, 
+                doctorId,
                 username,
                 patientName,
                 contactNumber,
                 dateTime
             );
 
-            myAppointmentsPanel.refreshAppointments();
             JOptionPane.showMessageDialog(this,
-                "Appointment booked successfully!",
+                "Appointment booked successfully!\nYour appointment is on " +
+                date.format(dateFormatter) + " at " + selectedTimeSlot,
                 "Success",
                 JOptionPane.INFORMATION_MESSAGE);
-            cardLayout.show(contentPanel, "myAppointments");
 
+            myAppointmentsPanel.refreshAppointments();
+            cardLayout.show(contentPanel, "MyAppointments");
+
+        } catch (DateTimeParseException e) {
+            showError("Invalid date format. Please use dd-MM-yyyy");
         } catch (Exception e) {
             showError(e.getMessage());
         }
@@ -187,8 +203,12 @@ public class AppointmentPanel extends JPanel {
     }
 
     private String getDoctorId(String doctorName) {
+        // Extract the doctor name without specialization
+        int index = doctorName.indexOf(" (");
+        String name = index > 0 ? doctorName.substring(0, index) : doctorName;
+        
         for (Object[] doctor : DoctorData.DOCTORS) {
-            if (doctor[1].equals(doctorName)) {
+            if (doctor[1].equals(name)) {
                 return (String) doctor[0];
             }
         }
@@ -198,7 +218,7 @@ public class AppointmentPanel extends JPanel {
     private String[] getDoctorNames() {
         List<String> names = new ArrayList<>();
         for (Object[] doctor : DoctorData.DOCTORS) {
-            names.add((String) doctor[1] + " (" + doctor[2] + ")");
+            names.add(doctor[1] + " (" + doctor[2] + ")");
         }
         return names.toArray(new String[0]);
     }
@@ -256,22 +276,22 @@ public class AppointmentPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
     }
 
-    private JButton createStyledButton(String text) {
+    private JButton createStyledButton(String text, Color backgroundColor) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(150, 35));
-        button.setBackground(text.equals("Clear") ? new Color(107, 114, 128) : new Color(37, 99, 235));
+        button.setBackground(backgroundColor);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(button.getBackground().darker());
+                button.setBackground(backgroundColor.darker());
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(text.equals("Clear") ? 
-                    new Color(107, 114, 128) : new Color(37, 99, 235));
+                button.setBackground(backgroundColor);
             }
         });
         
