@@ -1,17 +1,17 @@
 Admin Id Pass
 
-admin 
-admin 
+id admin 
+Pass admin 
 
 or 
 
-Admin 
-admin 
+id  Admin 
+Pass admin 
 
 or 
 
-Admin 
-Admin
+id  Admin 
+Pass Admin
 
 
 ## kindly fix the time and date issue from the front end 
