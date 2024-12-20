@@ -12,23 +12,23 @@
 ## Admin Panel
 ### Overview
 Access the admin panel via the following link:
-[Admin Panel](https://imgur.com/an60Wpw)
+![Admin Panel](https://imgur.com/an60Wpw.png)
 
 ### Features
 - Manage admissions, appointments, and other administrative tasks.
 
 ## Admission Form
 - View the admission form here:
-[Admission Form](https://imgur.com/ssyg0AX)
+![Admission Form](https://imgur.com/ssyg0AX.png)
 
 ## Appointment Dashboard
 - Monitor and manage appointments via the dashboard:
-[Appointment Dashboard](https://imgur.com/qXx8fg0)
+![Appointment Dashboard](https://imgur.com/qXx8fg0.png)
 
 ## User Panel
 ### Appointment Section
 - Users can view and manage their appointments:
-[User Panel - Appointments](https://imgur.com/tAbh17m)
+![User Panel - Appointments](https://imgur.com/tAbh17m.png)
 
 ## Notes
 - Ensure that all changes to the front-end are thoroughly tested for functionality and visual consistency.
