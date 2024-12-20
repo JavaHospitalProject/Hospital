@@ -4,10 +4,6 @@
 - **ID:** admin  
 - **Password:** admin  
 
-## Fixing the Time and Date Issue
-- Ensure that the time and date settings are properly synchronized in the front-end.
-- Check the **data folder** for precise information regarding time and date handling.
-- Cross-verify the time and date format being displayed on the user interface matches the system settings.
 
 ## Admin Panel
 ### Overview
@@ -30,6 +26,4 @@ Access the admin panel via the following link:
 - Users can view and manage their appointments:
 ![User Panel - Appointments](https://imgur.com/tAbh17m.png)
 
-## Notes
-- Ensure that all changes to the front-end are thoroughly tested for functionality and visual consistency.
-- Refer to the **data folder** for any required clarifications or configurations related to backend data management.
+
