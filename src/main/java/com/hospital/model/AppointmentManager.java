@@ -84,6 +84,13 @@ public class AppointmentManager {
                 .collect(Collectors.toList());
     }
 
+    public List<Appointment> getAllAppointments() {
+        // Consolidate all appointments from all doctors
+        return appointmentsByDoctor.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
     public void cancelAppointment(String appointmentId) {
         appointmentsByDoctor.values().forEach(appointments ->
             appointments.stream()

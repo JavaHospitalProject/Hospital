@@ -3,13 +3,12 @@ package com.hospital.gui;
 import com.hospital.data.DoctorData;
 import com.hospital.model.Appointment;
 import com.hospital.model.AppointmentManager;
+import java.awt.*;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class AdminAppointmentsPanel extends JPanel {
     private final JTable appointmentsTable;
@@ -38,7 +37,7 @@ public class AdminAppointmentsPanel extends JPanel {
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
         titlePanel.add(titleLabel, BorderLayout.WEST);
 
-        totalAppointmentsLabel = new JLabel("Total Today: 0");
+        totalAppointmentsLabel = new JLabel("Total Appointments: 0");
         totalAppointmentsLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titlePanel.add(totalAppointmentsLabel, BorderLayout.EAST);
 
@@ -126,12 +125,12 @@ public class AdminAppointmentsPanel extends JPanel {
     }
 
     public void refreshAppointments() {
-        tableModel.setRowCount(0);
-        List<Appointment> appointments = AppointmentManager.getInstance().getTodayAppointments();
+        tableModel.setRowCount(0); // Clear the table
+        List<Appointment> appointments = AppointmentManager.getInstance().getAllAppointments();
 
         for (Appointment appointment : appointments) {
             Object[] doctorInfo = findDoctorInfo(appointment.getDoctorId());
-            
+
             Object[] row = {
                 appointment.getDateTime().format(dateFormatter),
                 appointment.getDateTime().format(timeFormatter),
@@ -146,8 +145,7 @@ public class AdminAppointmentsPanel extends JPanel {
             tableModel.addRow(row);
         }
 
-        totalAppointmentsLabel.setText("Total Today: " + 
-            AppointmentManager.getInstance().getAppointmentCount(LocalDate.now()));
+        totalAppointmentsLabel.setText("Total Appointments: " + appointments.size());
     }
 
     private void applyFilters() {
@@ -198,7 +196,7 @@ public class AdminAppointmentsPanel extends JPanel {
         if (selectedRow >= 0) {
             selectedRow = appointmentsTable.convertRowIndexToModel(selectedRow);
             String currentStatus = (String) tableModel.getValueAt(selectedRow, 8);
-            
+
             if (currentStatus.equals(newStatus)) {
                 JOptionPane.showMessageDialog(this,
                     "Appointment is already " + newStatus.toLowerCase(),
@@ -208,8 +206,8 @@ public class AdminAppointmentsPanel extends JPanel {
             }
 
             String token = (String) tableModel.getValueAt(selectedRow, 7);
-            List<Appointment> appointments = AppointmentManager.getInstance().getTodayAppointments();
-            
+            List<Appointment> appointments = AppointmentManager.getInstance().getAllAppointments();
+
             appointments.stream()
                 .filter(a -> a.getSecretToken().equals(token))
                 .findFirst()
@@ -237,16 +235,17 @@ public class AdminAppointmentsPanel extends JPanel {
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
-        
+
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(backgroundColor.darker());
             }
+
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(backgroundColor);
             }
         });
-        
+
         return button;
     }
 }
