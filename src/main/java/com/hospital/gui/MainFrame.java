@@ -75,25 +75,25 @@ public class MainFrame extends JFrame {
         sideMenu.setPreferredSize(new Dimension(250, 0));
         sideMenu.setBackground(new Color(22, 31, 48));
         sideMenu.setLayout(new BoxLayout(sideMenu, BoxLayout.Y_AXIS));
-        
+
         // Header panel
         JPanel headerPanel = createHeaderPanel();
         sideMenu.add(headerPanel);
-        
+
         // Separator
         addSeparator(sideMenu);
 
         // User info panel
         JPanel userInfoPanel = createUserInfoPanel();
         sideMenu.add(userInfoPanel);
-        
+
         addSeparator(sideMenu);
 
         // Navigation buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBackground(new Color(22, 31, 48));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 25));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10)); // Reduced padding for left space
 
         // Add menu buttons based on user role
         addMenuButtons(buttonPanel);
@@ -113,21 +113,21 @@ public class MainFrame extends JFrame {
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBackground(new Color(22, 31, 48));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 20, 0));
-        
+
         JLabel headerLabel = new JLabel("HMS");
         headerLabel.setForeground(Color.WHITE);
         headerLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
+
         JLabel subLabel = new JLabel("Healthcare Management");
         subLabel.setForeground(new Color(148, 163, 184));
         subLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
+
         headerPanel.add(headerLabel);
         headerPanel.add(Box.createVerticalStrut(5));
         headerPanel.add(subLabel);
-        
+
         return headerPanel;
     }
 
@@ -135,14 +135,14 @@ public class MainFrame extends JFrame {
         JPanel userInfoPanel = new JPanel();
         userInfoPanel.setLayout(new BoxLayout(userInfoPanel, BoxLayout.Y_AXIS));
         userInfoPanel.setBackground(new Color(22, 31, 48));
-        userInfoPanel.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        userInfoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Adjusted padding
 
         UserAccount currentUser = SessionManager.getInstance().getCurrentUser();
         if (currentUser != null) {
             JLabel nameLabel = new JLabel(currentUser.getFullName());
             nameLabel.setForeground(Color.WHITE);
             nameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-            
+
             JLabel roleLabel = new JLabel(currentUser.getRole().toString());
             roleLabel.setForeground(new Color(148, 163, 184));
             roleLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -177,13 +177,13 @@ public class MainFrame extends JFrame {
         JPanel separatorPanel = new JPanel();
         separatorPanel.setBackground(new Color(22, 31, 48));
         separatorPanel.setLayout(new BoxLayout(separatorPanel, BoxLayout.Y_AXIS));
-        separatorPanel.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        
+        separatorPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Adjusted separator padding
+
         JSeparator separator = new JSeparator();
         separator.setForeground(new Color(45, 55, 72));
         separator.setMaximumSize(new Dimension(200, 1));
         separatorPanel.add(separator);
-        
+
         menu.add(separatorPanel);
         menu.add(Box.createVerticalStrut(20));
     }
@@ -191,7 +191,7 @@ public class MainFrame extends JFrame {
     private JPanel createLogoutPanel() {
         JPanel logoutPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         logoutPanel.setBackground(new Color(22, 31, 48));
-        logoutPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+        logoutPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10)); // Adjusted padding
 
         JButton logoutButton = new JButton("🚪  Logout");
         logoutButton.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -213,6 +213,7 @@ public class MainFrame extends JFrame {
             public void mouseEntered(MouseEvent evt) {
                 logoutButton.setForeground(new Color(248, 113, 113));
             }
+
             @Override
             public void mouseExited(MouseEvent evt) {
                 logoutButton.setForeground(new Color(239, 68, 68));
@@ -229,16 +230,17 @@ public class MainFrame extends JFrame {
         button.setForeground(new Color(203, 213, 225));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setHorizontalTextPosition(SwingConstants.RIGHT);
-        button.setIconTextGap(10);
-        
-        button.setMaximumSize(new Dimension(200, 45));
-        button.setPreferredSize(new Dimension(200, 45));
+        button.setIconTextGap(8); // Reduced the gap between the icon and text
+
+        // Adjusted button width and alignment
+        button.setMaximumSize(new Dimension(220, 45));
+        button.setPreferredSize(new Dimension(220, 45));
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
-        button.setBorderPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // Adjusted padding to move closer to the left
         button.setFocusPainted(false);
         button.setContentAreaFilled(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent evt) {
@@ -258,9 +260,9 @@ public class MainFrame extends JFrame {
                 button.setBackground(new Color(55, 65, 82));
             }
         });
-        
-        button.addActionListener(e -> ((CardLayout)contentPanel.getLayout()).show(contentPanel, cardName));
-        
+
+        button.addActionListener(e -> ((CardLayout) contentPanel.getLayout()).show(contentPanel, cardName));
+
         menu.add(button);
         menu.add(Box.createVerticalStrut(15));
     }

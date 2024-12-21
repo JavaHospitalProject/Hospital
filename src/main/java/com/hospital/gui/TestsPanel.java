@@ -13,8 +13,8 @@ public class TestsPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTable selectedTestsTable;
     private DefaultTableModel selectedTestsModel;
-    private double totalAmount = 0.0;
     private JLabel totalAmountLabel;
+    private double totalAmount = 0.0;
 
     public TestsPanel() {
         setLayout(new BorderLayout(10, 10)); // Add spacing between components
@@ -33,21 +33,25 @@ public class TestsPanel extends JPanel {
         splitPane.setOneTouchExpandable(true);
 
         add(splitPane, BorderLayout.CENTER);
+
+        // Populate the table initially
+        filterTestsByCategory("All Tests");
     }
 
     private JPanel createLeftPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBackground(new Color(240, 248, 255));
 
-        // Category Selection
+        // Category Selection Panel
         JPanel categoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         categoryPanel.setBackground(new Color(240, 248, 255));
-        categoryPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        categoryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel categoryLabel = new JLabel("Category: ");
         categoryLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         JComboBox<String> categoryCombo = new JComboBox<>(TestData.TEST_CATEGORIES);
         categoryCombo.setFont(new Font("Arial", Font.PLAIN, 14));
+        categoryCombo.setSelectedItem("All Tests"); // Default selection is "All Tests"
         categoryCombo.addActionListener(e -> filterTestsByCategory((String) categoryCombo.getSelectedItem()));
 
         categoryPanel.add(categoryLabel);
@@ -81,12 +85,15 @@ public class TestsPanel extends JPanel {
         addButton.setFont(new Font("Arial", Font.BOLD, 14));
         addButton.setBackground(new Color(100, 149, 237));
         addButton.setForeground(Color.WHITE);
-
         addButton.addActionListener(e -> addSelectedTests());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(new Color(240, 248, 255));
+        buttonPanel.add(addButton);
 
         panel.add(categoryPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(addButton, BorderLayout.SOUTH);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
     }
@@ -97,8 +104,7 @@ public class TestsPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(100, 149, 237)), "Selected Tests", 0, 0, new Font("Arial", Font.BOLD, 14), new Color(100, 149, 237)));
 
         // Selected Tests Table
-        String[] selectedColumns = {"Test ID", "Test Name", "Price (Tk)"};
-        selectedTestsModel = new DefaultTableModel(selectedColumns, 0);
+        selectedTestsModel = new DefaultTableModel(new String[]{"Test ID", "Test Name", "Price (Tk)"}, 0);
         selectedTestsTable = new JTable(selectedTestsModel);
         selectedTestsTable.setFont(new Font("Arial", Font.PLAIN, 14));
         selectedTestsTable.setRowHeight(25);
@@ -113,23 +119,22 @@ public class TestsPanel extends JPanel {
         totalAmountLabel.setForeground(new Color(34, 139, 34));
         totalPanel.add(totalAmountLabel);
 
-        // Discount Button
-        JButton discountButton = UIUtils.createStyledButton("Apply Discount");
-        discountButton.setFont(new Font("Arial", Font.BOLD, 14));
-        discountButton.setBackground(new Color(100, 149, 237));
-        discountButton.setForeground(Color.WHITE);
-        discountButton.addActionListener(e -> applyDiscount());
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(new Color(240, 248, 255));
 
-        // Remove Button
         JButton removeButton = UIUtils.createStyledButton("Remove Selected");
         removeButton.setFont(new Font("Arial", Font.BOLD, 14));
         removeButton.setBackground(new Color(255, 69, 0));
         removeButton.setForeground(Color.WHITE);
         removeButton.addActionListener(e -> removeSelectedTest());
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(new Color(240, 248, 255));
         buttonPanel.add(removeButton);
+
+        JButton discountButton = UIUtils.createStyledButton("Apply Discount");
+        discountButton.setFont(new Font("Arial", Font.BOLD, 14));
+        discountButton.setBackground(new Color(100, 149, 237));
+        discountButton.setForeground(Color.WHITE);
+        discountButton.addActionListener(e -> applyDiscount());
         buttonPanel.add(discountButton);
 
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -143,6 +148,7 @@ public class TestsPanel extends JPanel {
         int[] selectedRows = testTable.getSelectedRows();
         if (selectedRows.length > 0) {
             for (int selectedRow : selectedRows) {
+                selectedRow = testTable.convertRowIndexToModel(selectedRow);
                 String testId = (String) testTable.getValueAt(selectedRow, 0);
                 String testName = (String) testTable.getValueAt(selectedRow, 1);
                 String price = (String) testTable.getValueAt(selectedRow, 3);
@@ -153,6 +159,8 @@ public class TestsPanel extends JPanel {
                 }
             }
             updateTotalAmount();
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select at least one test to add.");
         }
     }
 
@@ -170,6 +178,8 @@ public class TestsPanel extends JPanel {
         if (selectedRow != -1) {
             selectedTestsModel.removeRow(selectedRow);
             updateTotalAmount();
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a test to remove.");
         }
     }
 
@@ -201,8 +211,10 @@ public class TestsPanel extends JPanel {
 
     private void filterTestsByCategory(String category) {
         tableModel.setRowCount(0); // Clear the table
+
+        // Populate the table with all tests if "All Tests" is selected
         for (Object[] test : TestData.TESTS) {
-            if (category.equals("All") || test[2].equals(category)) {
+            if ("All Tests".equalsIgnoreCase(category) || test[2].equals(category)) {
                 tableModel.addRow(test);
             }
         }

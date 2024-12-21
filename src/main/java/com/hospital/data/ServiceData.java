@@ -63,7 +63,8 @@ public class ServiceData {
         {"S057", "CT Angiogram", "Radiology", "20000", "1 hour"},
         {"S058", "Inhalation Therapy", "Pulmonology", "3000", "1 hour"},
         {"S059", "Pulmonary Rehabilitation", "Pulmonology", "4000", "1-2 hours"},
-        {"S060", "Genetic Testing", "Genetics", "15000", "1 hour"}
+        {"S060", "Genetic Testing", "Genetics", "15000", "1 hour"},
+        {"S061", "Police Case", "Operation Theater", "0", "1 hour"}
     };
 
     public static final String[] SERVICE_COLUMNS = {
