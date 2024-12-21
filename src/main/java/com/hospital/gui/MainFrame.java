@@ -119,7 +119,7 @@ public class MainFrame extends JFrame {
         headerLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subLabel = new JLabel("Healthcare Management");
+        JLabel subLabel = new JLabel("Hospital Management");
         subLabel.setForeground(new Color(148, 163, 184));
         subLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
